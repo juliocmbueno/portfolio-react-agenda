@@ -1,0 +1,46 @@
+
+@import "../../../../styles/variaveis";
+
+.layoutTopBar{
+  background-color: #FFF;
+  height: $topbar-height;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1100;
+  box-shadow: 0 0 4px rgba(0,0,0,0.25);
+  border-bottom: 1px solid #FFF;
+  display: flex;
+  align-items: center;
+  padding: 0 35px;
+}
+
+.layoutSideBar{
+  position: fixed;
+  left: 0;
+  top: $topbar-height;
+  height: calc(100% - #{$topbar-height});
+  background-color: #FFF;
+  width: $sidebar-width;
+  border-right: 1px solid #CCC;
+  transition: transform .5s cubic-bezier(.05,.74,.2,.99);
+  display: flex;
+  flex-direction: column;
+
+  @media(max-width: $breakpoint-lg){
+    top: 0;
+    z-index: 1102;
+    height: 100%;
+    transform: translateX(-100%);
+  }
+}
+
+.layoutContent{
+  margin-left: $sidebar-width;
+  padding-top: $topbar-height;
+
+  @media(max-width: $breakpoint-lg){
+    margin-left: 0;
+  }
+}

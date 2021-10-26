@@ -1,0 +1,46 @@
+
+@import "../../../../styles/variaveis";
+
+.logo{
+  font-size: 2.5rem;
+  cursor: pointer;
+
+  i{
+    color: #9587cb;
+  }
+
+  span{
+    margin-left: 10px;
+  }
+}
+
+.rightMenu{
+  list-style-type: none;
+  padding: 0;
+  height: $topbar-height;
+  margin: 0 0 0 auto;
+  display: flex;
+
+  li{
+    height: $topbar-height;
+    line-height: $topbar-height;
+
+     a{
+       text-decoration: none;
+       min-width: 120px;
+       font-size: 16px;
+       display: block;
+       text-align: center;
+       user-select: none;
+       line-height: $topbar-height;
+       border-radius: 0;
+       transition: background-color .2s;
+       cursor: pointer;
+
+       &:hover{
+         background-color: #9587cb;
+         color: #FFF !important;
+       }
+     }
+  }
+}
