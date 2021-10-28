@@ -10,5 +10,10 @@ html, body {
   box-sizing: border-box;
 }
 
+//noinspection ALL
+.ws-pre-wrap{
+  white-space: pre-wrap;
+}
+
 @import "components/sidebar-menu";
 
