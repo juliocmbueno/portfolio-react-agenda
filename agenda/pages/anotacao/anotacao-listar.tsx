@@ -4,56 +4,143 @@ import {useEffect, useState} from "react";
 import useSidebarLayoutMenu from "agenda/app/core/util/use-sitebar-layout-menu";
 import {SidebarLayoutMenus} from "agenda/app/core/layout/sidebar/sidebar-layout";
 import LoginRequiredControl from "agenda/app/core/login/login-required-control";
-import useIndexedDB from "agenda/app/core/util/useIndexedDB";
+import {useAnotacaoService} from "agenda/app/anotacao/use-anotacao-service";
+import {Anotacao} from "agenda/app/anotacao/anotacao";
+import {Dialog} from "primereact/dialog";
+import {CampoText} from "agenda/app/core/campos/text/campo-text";
+import {CampoTextarea} from "agenda/app/core/campos/textarea/campo-textarea";
+
+import styles from "./anotacao-listar.module.scss";
 
 export const AnotacaoListar:NextPage<any> = () => {
 
+  const novaAnotacao = ():Anotacao => {
+    return {
+      titulo: '',
+      descricao: '',
+      cor: ''
+    }
+  };
+
   const sidebarLayoutMenu = useSidebarLayoutMenu();
-  const indexedDB = useIndexedDB();
-  const table = 'anotacaoDB';
-  const [anotacoes, setAnotacoes] = useState<any>([]);
+  const anotacaoService = useAnotacaoService();
+  const [anotacoes, setAnotacoes] = useState<Anotacao[]>([]);
+  const [anotacao, setAnotacao] = useState<Anotacao|any>(novaAnotacao());
+  const [exibirDialogAnotacao, setExibirDialogAnotacao] = useState(false);
+  const [classHeaderDialog, setClassHeaderDialog] = useState<string>();
 
   useEffect(() => {
     sidebarLayoutMenu.setMenuAtivo(SidebarLayoutMenus.ANOTACOES);
-    indexedDB.createTable(table, { autoIncrement: true, keyPath: 'id' });
-
     atualizarAnotacoes();
   }, []);
 
-  const adicionarAnotacao = () => {
-    indexedDB.getRequest().onsuccess = (event) => {
-      const objectStore = indexedDB.getObjectStoreFromTransaction(event, table, 'readwrite');
-      objectStore.add({
-        titulo: 'Primeira anotação 5',
-        descricao: 'Descrição da anotação 5',
-        cor: 'vermelho'
-      });
-
-      atualizarAnotacoes();
-    };
+  const atualizarAnotacoes = () => {
+    anotacaoService.listar(anotacoes => setAnotacoes(anotacoes));
   };
 
-  const atualizarAnotacoes = () => {
-    indexedDB.getRequest().onsuccess = (event) => {
-      indexedDB.getObjectStoreFromTransaction(event, table).getAll().onsuccess = (event:Event) => {
-        const target:any = event?.target;
-        setAnotacoes(target?.result);
+  const abrirDialogAnotacao = () => {
+    setAnotacao(novaAnotacao());
+    setClassHeaderDialog('');
+    setExibirDialogAnotacao(true);
+  };
+
+  const salvar = () => {
+    anotacaoService.salvar({
+      anotacao: anotacao,
+      callback: () => {
+        setExibirDialogAnotacao(false);
+        atualizarAnotacoes();
       }
-    };
+    });
+  };
+
+  const atualizarAtributo = (atributo:any, value:any) => {
+    anotacao[atributo] = value;
+    setAnotacao(() => ({...anotacao}));
+  };
+
+  const atualizarCorAnotacao = (cor:string) => {
+    anotacao.cor = anotacao.cor == cor ? '' : cor;
+
+    if(anotacao.cor){
+      setClassHeaderDialog(`header-${anotacao.cor}`);
+
+    } else {
+      setClassHeaderDialog('');
+
+    }
+
+    setAnotacao(() => ({...anotacao}));
+  };
+
+  const getCarts = () => {
+    return anotacoes.map(anotacao => {
+      return (
+        <div className="col-12 col-md-4 col-lg-3">
+          <div className={'card mb-3 '+styles.cardAnotacao+' '+styles[anotacao.cor]}>
+            <div className={'card-header text-truncate '+styles.cardHeader}>{anotacao.titulo}</div>
+            <div className={'card-body '+styles.cardBody}>
+              <p className="card-text">{anotacao.descricao}</p>
+            </div>
+          </div>
+        </div>
+      )
+    });
   };
 
   return (
     <LoginRequiredControl>
       <div className="row">
-        <div className="col-auto">
-          <button className="btn btn-outline-primary" onClick={() => adicionarAnotacao()}>Adicionar Anotação</button>
+        <div className="col-auto mb-3">
+          <button className="btn btn-outline-primary" onClick={() => abrirDialogAnotacao()}>Adicionar Anotação</button>
         </div>
       </div>
       <div className="row">
-        <div className="col-12 ws-pre-wrap">
-          {JSON.stringify(anotacoes, null, '\t')}
-        </div>
+        {getCarts()}
       </div>
+
+      <Dialog
+        header="Adicionar Anotação"
+        visible={exibirDialogAnotacao}
+        className={classHeaderDialog}
+        breakpoints={{'960px': '75vw', '640px': '100vw'}}
+        style={{width: '40vw'}}
+        footer={() => {
+          return (
+            <div className="d-flex justify-content-end">
+              <button className="btn btn-secondary" onClick={() => setExibirDialogAnotacao(false)}>Cancelar</button>
+              <button className="btn btn-primary" onClick={() => salvar()}>Salvar</button>
+            </div>
+          )
+        }}
+        onHide={() => setExibirDialogAnotacao(false)}>
+        <div className="form">
+          <div className="col-12">
+            <CampoText
+              label="Título"
+              name="titulo"
+              value={anotacao.titulo}
+              onChange={(value) => atualizarAtributo('titulo', value)}/>
+          </div>
+          <div className="col-12">
+            <CampoTextarea
+              label="Descrição"
+              name="descricao"
+              value={anotacao.descricao}
+              onChange={(value) => atualizarAtributo('descricao', value)}/>
+          </div>
+          <div className="col-12">
+            <label className="form-label">Cor</label>
+            <div className={styles.containerBtnColorAnotation}>
+              <i className={'pi pi-circle-on ' + styles.green} onClick={() => atualizarCorAnotacao('green')}/>
+              <i className={'pi pi-circle-on ' + styles.yellow} onClick={() => atualizarCorAnotacao('yellow')}/>
+              <i className={'pi pi-circle-on ' + styles.orange} onClick={() => atualizarCorAnotacao('orange')}/>
+              <i className={'pi pi-circle-on ' + styles.pink} onClick={() => atualizarCorAnotacao('pink')}/>
+              <i className={'pi pi-circle-on ' + styles.purple} onClick={() => atualizarCorAnotacao('purple')}/>
+            </div>
+          </div>
+        </div>
+      </Dialog>
     </LoginRequiredControl>
   )
 };

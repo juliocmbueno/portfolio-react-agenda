@@ -1,0 +1,20 @@
+@mixin p-dialog-header-color($class-name, $backgroundColor, $color){
+  &.#{$class-name}{
+    .p-dialog-header{
+      background-color: $backgroundColor;
+      color: $color;
+
+      .p-dialog-header-icon{
+        color: $color;
+      }
+    }
+  }
+}
+
+.p-dialog{
+  @include p-dialog-header-color('header-green', $green, $white);
+  @include p-dialog-header-color('header-yellow', $yellow, $white);
+  @include p-dialog-header-color('header-orange', $orange, $white);
+  @include p-dialog-header-color('header-pink', $pink, $white);
+  @include p-dialog-header-color('header-purple', $purple, $white);
+}

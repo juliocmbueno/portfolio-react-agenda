@@ -1,4 +1,6 @@
 
+@import "variaveis";
+
 html, body {
   padding: 0;
   margin: 0;
@@ -10,10 +12,8 @@ html, body {
   box-sizing: border-box;
 }
 
-//noinspection ALL
-.ws-pre-wrap{
-  white-space: pre-wrap;
-}
-
+@import "components/scrollbar";
 @import "components/sidebar-menu";
+@import "components/white-space";
 
+@import "vendors-extension/primereact/p-dialog";

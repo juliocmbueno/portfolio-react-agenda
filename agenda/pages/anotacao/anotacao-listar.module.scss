@@ -1,0 +1,58 @@
+
+@import "../../styles/variaveis";
+
+.containerBtnColorAnotation{
+  display: flex;
+  align-items: center;
+
+  i{
+    font-size: 2rem;
+    margin: 0 5px;
+    cursor: pointer;
+
+    &:first-child{
+      margin-left: 0;
+    }
+
+    &.green{
+      color: $green;
+    }
+    &.yellow{
+      color: $yellow;
+    }
+    &.orange{
+      color: $orange;
+    }
+    &.pink{
+      color: $pink;
+    }
+    &.purple{
+      color: $purple;
+    }
+  }
+}
+
+@mixin card-header-color($class, $backgroupColor, $color){
+  &.#{$class}{
+    .cardHeader{
+      background-color: $backgroupColor;
+      color: $color;
+    }
+  }
+}
+
+.cardAnotacao{
+  width: 100%;
+
+  .cardBody{
+    height: 170px;
+    overflow: auto;
+  }
+
+
+  @include card-header-color('green', $green, $white);
+  @include card-header-color('yellow', $yellow, $white);
+  @include card-header-color('orange', $orange, $white);
+  @include card-header-color('pink', $pink, $white);
+  @include card-header-color('purple', $purple, $white);
+}
