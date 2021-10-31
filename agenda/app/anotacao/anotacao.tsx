@@ -1,7 +1,7 @@
+import {Entidade} from "agenda/app/core/util/Entidade";
 
-export interface Anotacao {
+export interface Anotacao extends Entidade{
 
-  id?:number;
   titulo:string;
   descricao:string;
   cor:string;

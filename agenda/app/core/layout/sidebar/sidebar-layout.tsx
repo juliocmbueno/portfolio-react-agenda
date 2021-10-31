@@ -95,8 +95,8 @@ const SidebarLayout:NextPage<any> = () => {
     <div>
       <div className={styles.filtroMenuContainer}>
         <div className='input-group'>
-          <span className={styles.inputGroupText + ' input-group-text'}><i className="pi pi-search"/> </span>
-          <input type="text" className="form-control" id="filtro-menu" value={filtroMenu} onChange={(event) => onFiltroMenuChange(event.target.value)} placeholder="Filtro"/>
+          <span className="input-group-text"><i className="pi pi-search"/> </span>
+          <input type="text" className="form-control" id="filtro-menu" value={filtroMenu} onChange={(event) => onFiltroMenuChange(event.target.value)} placeholder="Filrar menus..."/>
         </div>
       </div>
       <div>

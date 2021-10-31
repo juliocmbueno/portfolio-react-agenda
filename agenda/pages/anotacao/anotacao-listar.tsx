@@ -35,23 +35,38 @@ export const AnotacaoListar:NextPage<any> = () => {
   }, []);
 
   const atualizarAnotacoes = () => {
-    anotacaoService.listar(anotacoes => setAnotacoes(anotacoes));
+    anotacaoService.listar().then(anotacoes => setAnotacoes(anotacoes));
   };
 
-  const abrirDialogAnotacao = () => {
+  const criarNovo = () => {
     setAnotacao(novaAnotacao());
     setClassHeaderDialog('');
     setExibirDialogAnotacao(true);
   };
 
   const salvar = () => {
-    anotacaoService.salvar({
-      anotacao: anotacao,
-      callback: () => {
-        setExibirDialogAnotacao(false);
-        atualizarAnotacoes();
-      }
+    anotacaoService.salvar(anotacao).then(() => {
+      setExibirDialogAnotacao(false);
+      atualizarAnotacoes();
     });
+  };
+
+  const editar = (anotacaoTemp:Anotacao) => {
+    setAnotacao({...anotacaoTemp});
+    setClassHeaderDialog(anotacaoTemp.cor ? `header-${anotacaoTemp.cor}` : '');
+    setExibirDialogAnotacao(true);
+  };
+
+  const excluir = (event:React.MouseEvent, anotacao:Anotacao) => {
+    event.preventDefault();
+    anotacaoService
+      .deletar({query: anotacao.id,})
+      .then(() => atualizarAnotacoes());
+  };
+
+  const onDoubleClickBtnExcluir = (event:React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   const atualizarAtributo = (atributo:any, value:any) => {
@@ -59,7 +74,7 @@ export const AnotacaoListar:NextPage<any> = () => {
     setAnotacao(() => ({...anotacao}));
   };
 
-  const atualizarCorAnotacao = (cor:string) => {
+  const setCorAnotacao = (cor:string) => {
     anotacao.cor = anotacao.cor == cor ? '' : cor;
 
     if(anotacao.cor){
@@ -76,9 +91,17 @@ export const AnotacaoListar:NextPage<any> = () => {
   const getCarts = () => {
     return anotacoes.map(anotacao => {
       return (
-        <div className="col-12 col-md-4 col-lg-3">
-          <div className={'card mb-3 '+styles.cardAnotacao+' '+styles[anotacao.cor]}>
-            <div className={'card-header text-truncate '+styles.cardHeader}>{anotacao.titulo}</div>
+        <div key={anotacao.id} className="col-12 col-md-4 col-lg-3">
+          <div className={'card mb-3 '+styles.cardAnotacao+' '+styles[anotacao.cor]} onDoubleClick={() => editar(anotacao)}>
+            <div className={'card-header text-truncate '+styles.cardHeader}>
+              {anotacao.titulo}
+              <div
+                className={styles.buttonDeletarAnotacao}
+                onClick={(event) => excluir(event, anotacao)}
+                onDoubleClick={(event) => onDoubleClickBtnExcluir(event)}>
+                <i className="pi pi-times"/>
+              </div>
+            </div>
             <div className={'card-body '+styles.cardBody}>
               <p className="card-text">{anotacao.descricao}</p>
             </div>
@@ -90,13 +113,18 @@ export const AnotacaoListar:NextPage<any> = () => {
 
   return (
     <LoginRequiredControl>
-      <div className="row">
-        <div className="col-auto mb-3">
-          <button className="btn btn-outline-primary" onClick={() => abrirDialogAnotacao()}>Adicionar Anotação</button>
+      <div className="row pt-2">
+        <div className="col-12 col-md-6 col-lg-3">
+          <CampoText name="filtro-anotacoes" placeHolder="Filtrar anotações..." preInputGroup={<i className="pi pi-search"/> }/>
         </div>
       </div>
+
       <div className="row">
         {getCarts()}
+      </div>
+
+      <div className={styles.buttonNotaAnotacao} onClick={() => criarNovo()}>
+        <i className="pi pi-plus"/>
       </div>
 
       <Dialog
@@ -132,11 +160,11 @@ export const AnotacaoListar:NextPage<any> = () => {
           <div className="col-12">
             <label className="form-label">Cor</label>
             <div className={styles.containerBtnColorAnotation}>
-              <i className={'pi pi-circle-on ' + styles.green} onClick={() => atualizarCorAnotacao('green')}/>
-              <i className={'pi pi-circle-on ' + styles.yellow} onClick={() => atualizarCorAnotacao('yellow')}/>
-              <i className={'pi pi-circle-on ' + styles.orange} onClick={() => atualizarCorAnotacao('orange')}/>
-              <i className={'pi pi-circle-on ' + styles.pink} onClick={() => atualizarCorAnotacao('pink')}/>
-              <i className={'pi pi-circle-on ' + styles.purple} onClick={() => atualizarCorAnotacao('purple')}/>
+              <i className={'pi pi-circle-on ' + styles.green} onClick={() => setCorAnotacao('green')}/>
+              <i className={'pi pi-circle-on ' + styles.yellow} onClick={() => setCorAnotacao('yellow')}/>
+              <i className={'pi pi-circle-on ' + styles.orange} onClick={() => setCorAnotacao('orange')}/>
+              <i className={'pi pi-circle-on ' + styles.pink} onClick={() => setCorAnotacao('pink')}/>
+              <i className={'pi pi-circle-on ' + styles.purple} onClick={() => setCorAnotacao('purple')}/>
             </div>
           </div>
         </div>

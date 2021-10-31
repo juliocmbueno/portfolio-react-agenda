@@ -1,6 +1,15 @@
 
 @import "../../styles/variaveis";
 
+@mixin card-header-color($class, $backgroupColor, $color){
+  &.#{$class}{
+    .cardHeader{
+      background-color: $backgroupColor;
+      color: $color;
+    }
+  }
+}
+
 .containerBtnColorAnotation{
   display: flex;
   align-items: center;
@@ -32,27 +41,64 @@
   }
 }
 
-@mixin card-header-color($class, $backgroupColor, $color){
-  &.#{$class}{
-    .cardHeader{
-      background-color: $backgroupColor;
-      color: $color;
-    }
-  }
-}
-
 .cardAnotacao{
   width: 100%;
+
+  &:hover{
+    .buttonDeletarAnotacao{
+      display: inline-flex;
+    }
+  }
 
   .cardBody{
     height: 170px;
     overflow: auto;
   }
 
+  .buttonDeletarAnotacao{
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    right: 6px;
+    border-radius: 50%;
+    cursor: pointer;
+
+    &:hover{
+      background-color: #e9ecef;
+      color: #495057;
+    }
+  }
 
   @include card-header-color('green', $green, $white);
   @include card-header-color('yellow', $yellow, $white);
   @include card-header-color('orange', $orange, $white);
   @include card-header-color('pink', $pink, $white);
   @include card-header-color('purple', $purple, $white);
+}
+
+.buttonNotaAnotacao{
+  position:fixed;
+  width:60px;
+  height:60px;
+  bottom:40px;
+  right:40px;
+  background-color: $agenda-primary;
+  color:#FFF;
+  border-radius:50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 3px #CCC;
+  cursor: pointer;
+
+  &:hover{
+    background-color: $agenda-primary-hover;
+  }
+
+  i {
+    font-size: 1.5rem;
+  }
 }

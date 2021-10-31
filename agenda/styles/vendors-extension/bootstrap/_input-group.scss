@@ -1,0 +1,11 @@
+
+@import "../../variaveis";
+
+.input-group{
+  .input-group-text{
+    background-color: $white;
+  }
+  input{
+    border-left: none;
+  }
+}

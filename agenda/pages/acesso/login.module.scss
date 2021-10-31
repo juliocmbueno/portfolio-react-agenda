@@ -1,4 +1,6 @@
 
+@import "../../styles/variaveis";
+
 .formSignContainer{
   position: fixed;
   display: flex;
@@ -17,8 +19,8 @@
   }
 
   .formSign .iconeTop{
-    background-color: #9587cb;
-    color: #FFF;
+    background-color: $agenda-primary;
+    color: $white;
     padding: 10% 12%;
     border-radius: 50%;
   }

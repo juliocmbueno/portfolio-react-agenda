@@ -12,8 +12,13 @@ html, body {
   box-sizing: border-box;
 }
 
+//AUTORAL
 @import "components/scrollbar";
 @import "components/sidebar-menu";
 @import "components/white-space";
 
+//PRIMEREACT
 @import "vendors-extension/primereact/p-dialog";
+
+//BOOTSTRAP
+@import "vendors-extension/bootstrap/input-group";

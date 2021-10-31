@@ -7,21 +7,22 @@ export const useAnotacaoService = () => {
   const table = 'anotacaoDB';
   const indexedDB = useIndexedDB();
 
-  const salvar = (saveEvent:{anotacao:Anotacao, callback:(anotacao:Anotacao) => void}) => {
-    indexedDB.getRequest().onsuccess = (event) => {
-      const objectStore = indexedDB.getObjectStoreFromTransaction(event, table, 'readwrite');
-      objectStore.add(saveEvent.anotacao);
-      saveEvent?.callback(saveEvent.anotacao);
-    };
+  const salvar = (anotacao:Anotacao):Promise<Anotacao> => {
+    return indexedDB.salvar({
+      table: table,
+      entidade: anotacao,
+    });
   };
 
-  const listar = (callback: (anotacoes:Anotacao[]) => void) => {
-    indexedDB.getRequest().onsuccess = (event) => {
-      indexedDB.getObjectStoreFromTransaction(event, table).getAll().onsuccess = (event:Event) => {
-        const target:any = event?.target;
-        callback(target?.result);
-      }
-    };
+  const deletar = (deleteEvent:{query: IDBValidKey | IDBKeyRange | undefined}):Promise<void> => {
+    return indexedDB.deletar({
+      table: table,
+      query: deleteEvent.query,
+    });
+  };
+
+  const listar = ():Promise<Anotacao[]> => {
+    return indexedDB.listar({table});
   };
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export const useAnotacaoService = () => {
 
   return {
     salvar,
-    listar
+    listar,
+    deletar
   };
 };
