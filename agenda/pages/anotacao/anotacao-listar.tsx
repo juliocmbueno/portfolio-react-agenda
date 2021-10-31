@@ -11,6 +11,7 @@ import {CampoText} from "agenda/app/core/campos/text/campo-text";
 import {CampoTextarea} from "agenda/app/core/campos/textarea/campo-textarea";
 
 import styles from "./anotacao-listar.module.scss";
+import {IndexedDBFiltro} from "agenda/app/core/util/useIndexedDB";
 
 export const AnotacaoListar:NextPage<any> = () => {
 
@@ -28,15 +29,12 @@ export const AnotacaoListar:NextPage<any> = () => {
   const [anotacao, setAnotacao] = useState<Anotacao|any>(novaAnotacao());
   const [exibirDialogAnotacao, setExibirDialogAnotacao] = useState(false);
   const [classHeaderDialog, setClassHeaderDialog] = useState<string>();
+  const [filtro, setFiltro] = useState<string>('');
 
   useEffect(() => {
     sidebarLayoutMenu.setMenuAtivo(SidebarLayoutMenus.ANOTACOES);
-    atualizarAnotacoes();
+    listar(filtro);
   }, []);
-
-  const atualizarAnotacoes = () => {
-    anotacaoService.listar().then(anotacoes => setAnotacoes(anotacoes));
-  };
 
   const criarNovo = () => {
     setAnotacao(novaAnotacao());
@@ -47,7 +45,7 @@ export const AnotacaoListar:NextPage<any> = () => {
   const salvar = () => {
     anotacaoService.salvar(anotacao).then(() => {
       setExibirDialogAnotacao(false);
-      atualizarAnotacoes();
+      listar(filtro);
     });
   };
 
@@ -61,7 +59,29 @@ export const AnotacaoListar:NextPage<any> = () => {
     event.preventDefault();
     anotacaoService
       .deletar({query: anotacao.id,})
-      .then(() => atualizarAnotacoes());
+      .then(() => listar(filtro));
+  };
+
+  const listar = (value:string) => {
+    setFiltro(value);
+    anotacaoService.listar(getFiltros(value)).then(anotacoes => setAnotacoes(anotacoes));
+  };
+
+  const getFiltros = (valor:string):IndexedDBFiltro[] => {
+    return [
+      {
+        atributo: 'titulo',
+        valor: valor,
+        matchMode: "contains",
+        ignoreCase: true
+      },
+      {
+        atributo: 'descricao',
+        valor: valor,
+        matchMode: "contains",
+        ignoreCase: true
+      }
+    ];
   };
 
   const onDoubleClickBtnExcluir = (event:React.MouseEvent) => {
@@ -115,7 +135,13 @@ export const AnotacaoListar:NextPage<any> = () => {
     <LoginRequiredControl>
       <div className="row pt-2">
         <div className="col-12 col-md-6 col-lg-3">
-          <CampoText name="filtro-anotacoes" placeHolder="Filtrar anotações..." preInputGroup={<i className="pi pi-search"/> }/>
+          <CampoText
+            name="filtro-anotacoes"
+            placeHolder="Filtrar anotações..."
+            preInputGroup={<i className="pi pi-search"/> }
+            value={filtro}
+            onChange={(value) => setFiltro(value)}
+            onInput={(value) => listar(value)}/>
         </div>
       </div>
 

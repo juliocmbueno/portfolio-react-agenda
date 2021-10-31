@@ -8,6 +8,7 @@ import {Subscription} from "rxjs";
 import {MenuItem} from "primereact/menuitem";
 
 import styles from "./sidebar-layout.module.scss";
+import {CampoText} from "agenda/app/core/campos/text/campo-text";
 
 export const SidebarLayoutMenus:any = {
   DIVIDER: {
@@ -94,10 +95,13 @@ const SidebarLayout:NextPage<any> = () => {
   return (
     <div>
       <div className={styles.filtroMenuContainer}>
-        <div className='input-group'>
-          <span className="input-group-text"><i className="pi pi-search"/> </span>
-          <input type="text" className="form-control" id="filtro-menu" value={filtroMenu} onChange={(event) => onFiltroMenuChange(event.target.value)} placeholder="Filrar menus..."/>
-        </div>
+        <CampoText
+          placeHolder="Filrar menus..."
+          name="filtro-menu"
+          removeMarginBottom={true}
+          preInputGroup={<i className="pi pi-search"/> }
+          value={filtroMenu}
+          onChange={value => onFiltroMenuChange(value)}/>
       </div>
       <div>
         <Menu className="sidebar-menu" model={menusFiltrados} />

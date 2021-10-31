@@ -1,4 +1,4 @@
-import useIndexedDB from "agenda/app/core/util/useIndexedDB";
+import useIndexedDB, {IndexedDBFiltro} from "agenda/app/core/util/useIndexedDB";
 import {useEffect} from "react";
 import {Anotacao} from "agenda/app/anotacao/anotacao";
 
@@ -21,12 +21,12 @@ export const useAnotacaoService = () => {
     });
   };
 
-  const listar = ():Promise<Anotacao[]> => {
-    return indexedDB.listar({table});
+  const listar = (filtros?:IndexedDBFiltro[]):Promise<Anotacao[]> => {
+    return indexedDB.listar({table, filtros});
   };
 
   useEffect(() => {
-    indexedDB.createTable(table, { autoIncrement: true, keyPath: 'id' });
+    indexedDB.createTable(table, { autoIncrement: true, keyPath: 'id' }).then();
   }, []);
 
   return {
