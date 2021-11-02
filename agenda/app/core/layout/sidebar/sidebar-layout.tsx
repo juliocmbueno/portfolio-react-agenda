@@ -101,7 +101,7 @@ const SidebarLayout:NextPage<any> = () => {
           removeMarginBottom={true}
           preInputGroup={<i className="pi pi-search"/> }
           value={filtroMenu}
-          onChange={value => onFiltroMenuChange(value)}/>
+          onChange={event => onFiltroMenuChange(event.target.value)}/>
       </div>
       <div>
         <Menu className="sidebar-menu" model={menusFiltrados} />

@@ -1,0 +1,27 @@
+
+@import "../../../styles/variaveis";
+
+
+.was-validated .form-control:valid{
+  border-color: $form-control-border-color;
+  padding: .375rem .75rem;
+  background-color: $white;
+  background-image: none;
+
+  &:focus{
+    border-color: $form-control-focus-border-color;
+    box-shadow: $form-control-focus-box-shadow;
+  }
+}
+
+.was-validated .form-control.is-invalid {
+  border-color: $form-control-invalid-border-color;
+  padding: .375rem .75rem;
+  background-color: $white;
+  background-image: none;
+
+  &:focus{
+    border-color: $form-control-invalid-focus-border-color;
+    box-shadow: $form-control-invalid-focus-box-shadow;
+  }
+}

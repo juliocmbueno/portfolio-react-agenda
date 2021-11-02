@@ -12,6 +12,9 @@ import {CampoTextarea} from "agenda/app/core/campos/textarea/campo-textarea";
 
 import styles from "./anotacao-listar.module.scss";
 import {IndexedDBFiltro} from "agenda/app/core/util/useIndexedDB";
+import {useFormik} from "formik";
+import {Validators} from "agenda/app/core/util/Validators";
+import appConfirmDialog from "agenda/app/core/components/confirm-dialog";
 
 export const AnotacaoListar:NextPage<any> = () => {
 
@@ -26,10 +29,24 @@ export const AnotacaoListar:NextPage<any> = () => {
   const sidebarLayoutMenu = useSidebarLayoutMenu();
   const anotacaoService = useAnotacaoService();
   const [anotacoes, setAnotacoes] = useState<Anotacao[]>([]);
-  const [anotacao, setAnotacao] = useState<Anotacao|any>(novaAnotacao());
   const [exibirDialogAnotacao, setExibirDialogAnotacao] = useState(false);
   const [classHeaderDialog, setClassHeaderDialog] = useState<string>();
   const [filtro, setFiltro] = useState<string>('');
+
+  const formik = useFormik<any>({
+    initialValues: novaAnotacao(),
+    validate: (data) => {
+      const erros:any = {};
+
+      erros.titulo = Validators.required(data.titulo, 'Título');
+      erros.descricao = Validators.required(data.descricao, 'Descrição');
+
+      Validators.removeErrorsNull(erros);
+
+      return erros;
+    },
+    onSubmit: () => salvar()
+  });
 
   useEffect(() => {
     sidebarLayoutMenu.setMenuAtivo(SidebarLayoutMenus.ANOTACOES);
@@ -37,29 +54,37 @@ export const AnotacaoListar:NextPage<any> = () => {
   }, []);
 
   const criarNovo = () => {
-    setAnotacao(novaAnotacao());
+    formik.resetForm();
     setClassHeaderDialog('');
     setExibirDialogAnotacao(true);
   };
 
   const salvar = () => {
-    anotacaoService.salvar(anotacao).then(() => {
+    anotacaoService.salvar(formik.values).then(() => {
       setExibirDialogAnotacao(false);
       listar(filtro);
     });
   };
 
   const editar = (anotacaoTemp:Anotacao) => {
-    setAnotacao({...anotacaoTemp});
+    formik.resetForm();
+    formik.setValues(anotacaoTemp);
     setClassHeaderDialog(anotacaoTemp.cor ? `header-${anotacaoTemp.cor}` : '');
     setExibirDialogAnotacao(true);
   };
 
   const excluir = (event:React.MouseEvent, anotacao:Anotacao) => {
     event.preventDefault();
-    anotacaoService
-      .deletar({query: anotacao.id,})
-      .then(() => listar(filtro));
+
+    appConfirmDialog({
+      titulo: 'Confirmação',
+      mensagem: 'Deseja realmente excluir a anotação?',
+      accept: () => {
+        anotacaoService
+          .deletar({query: anotacao.id,})
+          .then(() => listar(filtro));
+      }
+    });
   };
 
   const listar = (value:string) => {
@@ -89,12 +114,9 @@ export const AnotacaoListar:NextPage<any> = () => {
     event.stopPropagation();
   };
 
-  const atualizarAtributo = (atributo:any, value:any) => {
-    anotacao[atributo] = value;
-    setAnotacao(() => ({...anotacao}));
-  };
-
   const setCorAnotacao = (cor:string) => {
+    const anotacao:Anotacao = formik.values;
+
     anotacao.cor = anotacao.cor == cor ? '' : cor;
 
     if(anotacao.cor){
@@ -104,11 +126,9 @@ export const AnotacaoListar:NextPage<any> = () => {
       setClassHeaderDialog('');
 
     }
-
-    setAnotacao(() => ({...anotacao}));
   };
 
-  const getCarts = () => {
+  const getCards = () => {
     return anotacoes.map(anotacao => {
       return (
         <div key={anotacao.id} className="col-12 col-md-4 col-lg-3">
@@ -140,13 +160,13 @@ export const AnotacaoListar:NextPage<any> = () => {
             placeHolder="Filtrar anotações..."
             preInputGroup={<i className="pi pi-search"/> }
             value={filtro}
-            onChange={(value) => setFiltro(value)}
+            onChange={(event) => setFiltro(event.target.value)}
             onInput={(value) => listar(value)}/>
         </div>
       </div>
 
       <div className="row">
-        {getCarts()}
+        {getCards()}
       </div>
 
       <div className={styles.buttonNotaAnotacao} onClick={() => criarNovo()}>
@@ -163,37 +183,41 @@ export const AnotacaoListar:NextPage<any> = () => {
           return (
             <div className="d-flex justify-content-end">
               <button className="btn btn-secondary" onClick={() => setExibirDialogAnotacao(false)}>Cancelar</button>
-              <button className="btn btn-primary" onClick={() => salvar()}>Salvar</button>
+              <button className="btn btn-primary" onClick={() => formik.submitForm()}>Salvar</button>
             </div>
           )
         }}
         onHide={() => setExibirDialogAnotacao(false)}>
-        <div className="form">
-          <div className="col-12">
-            <CampoText
-              label="Título"
-              name="titulo"
-              value={anotacao.titulo}
-              onChange={(value) => atualizarAtributo('titulo', value)}/>
-          </div>
-          <div className="col-12">
-            <CampoTextarea
-              label="Descrição"
-              name="descricao"
-              value={anotacao.descricao}
-              onChange={(value) => atualizarAtributo('descricao', value)}/>
-          </div>
-          <div className="col-12">
-            <label className="form-label">Cor</label>
-            <div className={styles.containerBtnColorAnotation}>
-              <i className={'pi pi-circle-on ' + styles.green} onClick={() => setCorAnotacao('green')}/>
-              <i className={'pi pi-circle-on ' + styles.yellow} onClick={() => setCorAnotacao('yellow')}/>
-              <i className={'pi pi-circle-on ' + styles.orange} onClick={() => setCorAnotacao('orange')}/>
-              <i className={'pi pi-circle-on ' + styles.pink} onClick={() => setCorAnotacao('pink')}/>
-              <i className={'pi pi-circle-on ' + styles.purple} onClick={() => setCorAnotacao('purple')}/>
+
+        <form onSubmit={formik.handleSubmit} className={formik.submitCount ? 'was-validated' : ''} noValidate>
+          <div className="form">
+            <div className="col-12">
+              <CampoText
+                label="Título"
+                name="titulo"
+                required={true}
+                formik={formik}/>
+            </div>
+            <div className="col-12">
+              <CampoTextarea
+                label="Descrição"
+                name="descricao"
+                required={true}
+                formik={formik}/>
+            </div>
+            <div className="col-12">
+              <label className="form-label">Cor</label>
+              <div className={styles.containerBtnColorAnotation}>
+                <i className={'pi pi-circle-on ' + styles.green} onClick={() => setCorAnotacao('green')}/>
+                <i className={'pi pi-circle-on ' + styles.yellow} onClick={() => setCorAnotacao('yellow')}/>
+                <i className={'pi pi-circle-on ' + styles.orange} onClick={() => setCorAnotacao('orange')}/>
+                <i className={'pi pi-circle-on ' + styles.pink} onClick={() => setCorAnotacao('pink')}/>
+                <i className={'pi pi-circle-on ' + styles.purple} onClick={() => setCorAnotacao('purple')}/>
+              </div>
             </div>
           </div>
-        </div>
+        </form>
+
       </Dialog>
     </LoginRequiredControl>
   )

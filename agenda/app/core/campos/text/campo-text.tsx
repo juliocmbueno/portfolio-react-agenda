@@ -1,12 +1,17 @@
 import * as React from "react";
 import {ChangeEvent, useState} from "react";
+import {Validators} from "agenda/app/core/util/Validators";
+import {useCampoUtil} from "agenda/app/core/util/use-campo-util";
+import {CamposProps} from "agenda/app/core/campos/campos-props";
 
 export const CampoText = (props:CampoTextProps) => {
 
   const [onInputTriggerTimeOut, setOnInputTriggerTimeOut] = useState<any>();
+  const campoUtil = useCampoUtil();
 
   const onChange = (event:ChangeEvent<any>) => {
-    props.onChange && props.onChange(event.target.value);
+    props.onChange && props.onChange(event);
+    props.formik && props.formik.handleChange(event);
   };
 
   const onKeyDown = () => {
@@ -41,32 +46,27 @@ export const CampoText = (props:CampoTextProps) => {
 
   return (
     <div className={getContainerClasses()}>
-      {props.label && <label htmlFor={props.id || props.name} className="form-label">{props.label}</label>}
+      {props.label && campoUtil.getLabel(props)}
       {props.preInputGroup && <span className="input-group-text"><label htmlFor={props.id || props.name}>{props.preInputGroup}</label></span>}
       <input
         type="text"
-        className="form-control"
+        autoComplete="off"
+        className={campoUtil.getClassName(props)}
         name={props.name}
         placeholder={props?.placeHolder}
         id={props.id || props.name}
-        value={props.value}
+        value={campoUtil.getValue(props)}
         onKeyDown={() => onKeyDown()}
         onKeyUp={() => onKeyUp()}
         onChange={(event) => onChange(event)}/>
+      <div className="invalid-feedback">{Validators.getFormErrorMessage(props.formik, props.name)}</div>
     </div>
   );
 };
 
-export interface CampoTextProps {
-  label?:string
-  name:string;
-  value?:string;
-  rows?:number
-  id?:string;
+export interface CampoTextProps extends CamposProps{
   removeMarginBottom?:boolean
-  required?:boolean;
   placeHolder?:string;
-  onChange?: (value:string) => void;
   onInput?: (value:string) => void;
   preInputGroup?:any;
 }
